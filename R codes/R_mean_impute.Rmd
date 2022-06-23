@@ -1,0 +1,73 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+```{r}
+library(dplyr)
+library(lubridate)
+
+df <- read.csv("household_power_consumption.txt", header=TRUE, sep=";")
+
+df_missing <- read.csv("household_power_consumption.txt", header=TRUE, sep=";")
+
+
+df$Time <- gsub('\\.',':',df$Time)
+df$Date <- gsub('/','-',df$Date)
+
+df$DateTime <- as.POSIXct(as.character(paste(df$Date, df$Time)), format="%d-%m-%Y %H:%M:%S")
+
+df <- subset( df, select = -c(Date, Time) )
+
+df[1:6] <- lapply(df[1:6], as.numeric)
+
+str(df)
+
+df_missing$Time <- gsub('\\.',':',df_missing$Time)
+df_missing$Date <- gsub('/','-',df_missing$Date)
+
+df_missing$DateTime <- as.POSIXct(as.character(paste(df_missing$Date, df_missing$Time)), format="%d-%m-%Y %H:%M:%S")
+
+df_missing <- subset( df_missing, select = -c(Date, Time) )
+
+df_missing[1:6] <- lapply(df_missing[1:6], as.numeric)
+
+
+```
+```{r}
+library(zoo) 
+df$Global_active_power <- na.approx(df$Global_active_power)
+df$Global_reactive_power <- na.approx(df$Global_reactive_power)
+df$Global_intensity<- na.approx(df$Global_intensity)
+df$Voltage<- na.approx(df$Voltage)
+df$Sub_metering_1<- na.approx(df$Sub_metering_1)
+df$Sub_metering_2<- na.approx(df$Sub_metering_2)
+df$Sub_metering_3<- na.approx(df$Sub_metering_3)
+
+
+
+
+
+```
+
+```{r}
+
+colSums(is.na(df))
+
+
+
+
+```
+
+```{r}
+which(is.na(df_missing))
+```
+
+
+```{r}
+library(ggplot2)
+autoplot(na.approx(zoo(df_missing[2:7])), facet = NULL)
+```
+```{r}
+write.csv(df, 'mean_power.csv')
+```
+
